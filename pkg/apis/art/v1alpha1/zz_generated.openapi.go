@@ -67,6 +67,34 @@ func schema_pkg_apis_art_v1alpha1_ContainerBuildSpec(ref common.ReferenceCallbac
 			SchemaProps: spec.SchemaProps{
 				Description: "ContainerBuildSpec defines the desired state of ContainerBuild",
 				Type:        []string{"object"},
+				Properties: map[string]spec.Schema{
+					"buildSystem": {
+						SchemaProps: spec.SchemaProps{
+							Description: "INSERT ADDITIONAL SPEC FIELDS - desired state of cluster Important: Run \"operator-sdk generate k8s\" to regenerate code after modifying this file Add custom validation using kubebuilder tags: https://book-v1.book.kubebuilder.io/beyond_basics/generating_crd.html",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"component": {
+						SchemaProps: spec.SchemaProps{
+							Type:   []string{"string"},
+							Format: "",
+						},
+					},
+					"version": {
+						SchemaProps: spec.SchemaProps{
+							Type:   []string{"string"},
+							Format: "",
+						},
+					},
+					"release": {
+						SchemaProps: spec.SchemaProps{
+							Type:   []string{"string"},
+							Format: "",
+						},
+					},
+				},
+				Required: []string{"buildSystem", "component", "version", "release"},
 			},
 		},
 	}
@@ -78,6 +106,34 @@ func schema_pkg_apis_art_v1alpha1_ContainerBuildStatus(ref common.ReferenceCallb
 			SchemaProps: spec.SchemaProps{
 				Description: "ContainerBuildStatus defines the observed state of ContainerBuild",
 				Type:        []string{"object"},
+				Properties: map[string]spec.Schema{
+					"pullSpecs": {
+						VendorExtensible: spec.VendorExtensible{
+							Extensions: spec.Extensions{
+								"x-kubernetes-list-type": "set",
+							},
+						},
+						SchemaProps: spec.SchemaProps{
+							Description: "INSERT ADDITIONAL STATUS FIELD - define observed state of cluster Important: Run \"operator-sdk generate k8s\" to regenerate code after modifying this file Add custom validation using kubebuilder tags: https://book-v1.book.kubebuilder.io/beyond_basics/generating_crd.html",
+							Type:        []string{"array"},
+							Items: &spec.SchemaOrArray{
+								Schema: &spec.Schema{
+									SchemaProps: spec.SchemaProps{
+										Type:   []string{"string"},
+										Format: "",
+									},
+								},
+							},
+						},
+					},
+					"digest": {
+						SchemaProps: spec.SchemaProps{
+							Type:   []string{"string"},
+							Format: "",
+						},
+					},
+				},
+				Required: []string{"pullSpecs", "digest"},
 			},
 		},
 	}

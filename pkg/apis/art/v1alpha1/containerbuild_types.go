@@ -13,6 +13,10 @@ type ContainerBuildSpec struct {
 	// INSERT ADDITIONAL SPEC FIELDS - desired state of cluster
 	// Important: Run "operator-sdk generate k8s" to regenerate code after modifying this file
 	// Add custom validation using kubebuilder tags: https://book-v1.book.kubebuilder.io/beyond_basics/generating_crd.html
+	BuildSystem string `json:"buildSystem"`
+	Component string `json:"component"`
+	Version string `json:"version"`
+	Release string `json:"release"`
 }
 
 // ContainerBuildStatus defines the observed state of ContainerBuild
@@ -21,6 +25,9 @@ type ContainerBuildStatus struct {
 	// INSERT ADDITIONAL STATUS FIELD - define observed state of cluster
 	// Important: Run "operator-sdk generate k8s" to regenerate code after modifying this file
 	// Add custom validation using kubebuilder tags: https://book-v1.book.kubebuilder.io/beyond_basics/generating_crd.html
+	// +listType=set
+	PullSpecs []string `json:"pullSpecs"`
+	Digest string `json:"digest"`
 }
 
 // +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object

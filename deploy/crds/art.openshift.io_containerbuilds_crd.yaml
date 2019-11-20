@@ -9,6 +9,10 @@ spec:
     listKind: ContainerBuildList
     plural: containerbuilds
     singular: containerbuild
+    shortNames:
+      - cb
+    categories:
+      - all
   scope: Namespaced
   subresources:
     status: {}
@@ -30,9 +34,41 @@ spec:
           type: object
         spec:
           description: ContainerBuildSpec defines the desired state of ContainerBuild
+          properties:
+            buildSystem:
+              description: 'INSERT ADDITIONAL SPEC FIELDS - desired state of cluster
+                Important: Run "operator-sdk generate k8s" to regenerate code after
+                modifying this file Add custom validation using kubebuilder tags:
+                https://book-v1.book.kubebuilder.io/beyond_basics/generating_crd.html'
+              type: string
+            component:
+              type: string
+            release:
+              type: string
+            version:
+              type: string
+          required:
+          - buildSystem
+          - component
+          - release
+          - version
           type: object
         status:
           description: ContainerBuildStatus defines the observed state of ContainerBuild
+          properties:
+            digest:
+              type: string
+            pullSpecs:
+              description: 'INSERT ADDITIONAL STATUS FIELD - define observed state
+                of cluster Important: Run "operator-sdk generate k8s" to regenerate
+                code after modifying this file Add custom validation using kubebuilder
+                tags: https://book-v1.book.kubebuilder.io/beyond_basics/generating_crd.html'
+              items:
+                type: string
+              type: array
+          required:
+          - digest
+          - pullSpecs
           type: object
       type: object
   version: v1alpha1

@@ -1,7 +1,13 @@
 apiVersion: art.openshift.io/v1alpha1
 kind: ContainerBuild
 metadata:
-  name: example-containerbuild
+  name: ose-openshift-apiserver-container-v4.3.0-201911201117
+  labels:
+    art.openshift.io/product: ocp
+    art.openshift.io/product-version: "4.3"
+    art.openshift.io/release: "4.3.0"
 spec:
-  # Add fields here
-  size: 3
+  buildSystem: brew
+  component: ose-openshift-apiserver-container
+  version: v4.3.0
+  release: "201911201117"
