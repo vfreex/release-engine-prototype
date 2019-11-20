@@ -1,0 +1,11 @@
+kind: RoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: release-engine-prototype
+subjects:
+- kind: ServiceAccount
+  name: release-engine-prototype
+roleRef:
+  kind: Role
+  name: release-engine-prototype
+  apiGroup: rbac.authorization.k8s.io
