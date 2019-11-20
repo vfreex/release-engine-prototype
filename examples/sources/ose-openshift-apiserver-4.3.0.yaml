@@ -1,0 +1,27 @@
+apiVersion: art.openshift.io/v1alpha1
+kind: Source
+metadata:
+  name: ose-openshift-apiserver-4.3.0
+  labels:
+    art.openshift.io/product: ocp
+    art.openshift.io/product-version: "4.3"
+    art.openshift.io/release: "4.3.0"
+  annotations:
+    art.openshift.io/distgit-instance: pkgs.devel.redhat.com
+    art.openshift.io/distgit-key: containers/ose-openshift-apiserver
+spec:
+  source:
+    git:
+      uri: https://github.com/openshift/openshift-apiserver.git
+      ref: release-4.3
+  relationships:
+  - type: distGit
+    distGit:
+      key: containers/ose-openshift-apiserver
+      instance: pkgs.devel.redhat.com
+      branch: release-4.3
+  - type: koji
+    koji:
+      componentName: ose-openshift-apiserver-container
+      instance: brew
+

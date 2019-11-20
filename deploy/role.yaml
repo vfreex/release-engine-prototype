@@ -58,5 +58,6 @@ rules:
   - art.openshift.io
   resources:
   - '*'
+  - sources
   verbs:
   - '*'

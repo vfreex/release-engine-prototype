@@ -14,6 +14,14 @@ func GetOpenAPIDefinitions(ref common.ReferenceCallback) map[string]common.OpenA
 		"github.com/vfreex/release-engine-prototype/pkg/apis/art/v1alpha1.ContainerBuild":       schema_pkg_apis_art_v1alpha1_ContainerBuild(ref),
 		"github.com/vfreex/release-engine-prototype/pkg/apis/art/v1alpha1.ContainerBuildSpec":   schema_pkg_apis_art_v1alpha1_ContainerBuildSpec(ref),
 		"github.com/vfreex/release-engine-prototype/pkg/apis/art/v1alpha1.ContainerBuildStatus": schema_pkg_apis_art_v1alpha1_ContainerBuildStatus(ref),
+		"github.com/vfreex/release-engine-prototype/pkg/apis/art/v1alpha1.DistGitRelationship":  schema_pkg_apis_art_v1alpha1_DistGitRelationship(ref),
+		"github.com/vfreex/release-engine-prototype/pkg/apis/art/v1alpha1.GitSource":            schema_pkg_apis_art_v1alpha1_GitSource(ref),
+		"github.com/vfreex/release-engine-prototype/pkg/apis/art/v1alpha1.KojiRelationship":     schema_pkg_apis_art_v1alpha1_KojiRelationship(ref),
+		"github.com/vfreex/release-engine-prototype/pkg/apis/art/v1alpha1.Source":               schema_pkg_apis_art_v1alpha1_Source(ref),
+		"github.com/vfreex/release-engine-prototype/pkg/apis/art/v1alpha1.SourceDefinition":     schema_pkg_apis_art_v1alpha1_SourceDefinition(ref),
+		"github.com/vfreex/release-engine-prototype/pkg/apis/art/v1alpha1.SourceRelationship":   schema_pkg_apis_art_v1alpha1_SourceRelationship(ref),
+		"github.com/vfreex/release-engine-prototype/pkg/apis/art/v1alpha1.SourceSpec":           schema_pkg_apis_art_v1alpha1_SourceSpec(ref),
+		"github.com/vfreex/release-engine-prototype/pkg/apis/art/v1alpha1.SourceStatus":         schema_pkg_apis_art_v1alpha1_SourceStatus(ref),
 	}
 }
 
@@ -134,6 +142,262 @@ func schema_pkg_apis_art_v1alpha1_ContainerBuildStatus(ref common.ReferenceCallb
 					},
 				},
 				Required: []string{"pullSpecs", "digest"},
+			},
+		},
+	}
+}
+
+func schema_pkg_apis_art_v1alpha1_DistGitRelationship(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Type: []string{"object"},
+				Properties: map[string]spec.Schema{
+					"key": {
+						SchemaProps: spec.SchemaProps{
+							Type:   []string{"string"},
+							Format: "",
+						},
+					},
+					"branch": {
+						SchemaProps: spec.SchemaProps{
+							Type:   []string{"string"},
+							Format: "",
+						},
+					},
+					"instance": {
+						SchemaProps: spec.SchemaProps{
+							Type:   []string{"string"},
+							Format: "",
+						},
+					},
+				},
+				Required: []string{"key", "branch", "instance"},
+			},
+		},
+	}
+}
+
+func schema_pkg_apis_art_v1alpha1_GitSource(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Type: []string{"object"},
+				Properties: map[string]spec.Schema{
+					"uri": {
+						SchemaProps: spec.SchemaProps{
+							Description: "URI points to the source that will be built. The structure of the source will depend on the type of build to run",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"ref": {
+						SchemaProps: spec.SchemaProps{
+							Description: "Ref is the branch/tag/ref to build.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+				},
+				Required: []string{"uri", "ref"},
+			},
+		},
+	}
+}
+
+func schema_pkg_apis_art_v1alpha1_KojiRelationship(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Type: []string{"object"},
+				Properties: map[string]spec.Schema{
+					"componentName": {
+						SchemaProps: spec.SchemaProps{
+							Type:   []string{"string"},
+							Format: "",
+						},
+					},
+					"instance": {
+						SchemaProps: spec.SchemaProps{
+							Type:   []string{"string"},
+							Format: "",
+						},
+					},
+				},
+				Required: []string{"componentName", "instance"},
+			},
+		},
+	}
+}
+
+func schema_pkg_apis_art_v1alpha1_Source(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Description: "Source is the Schema for the sources API",
+				Type:        []string{"object"},
+				Properties: map[string]spec.Schema{
+					"kind": {
+						SchemaProps: spec.SchemaProps{
+							Description: "Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#types-kinds",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"apiVersion": {
+						SchemaProps: spec.SchemaProps{
+							Description: "APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#resources",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"metadata": {
+						SchemaProps: spec.SchemaProps{
+							Ref: ref("k8s.io/apimachinery/pkg/apis/meta/v1.ObjectMeta"),
+						},
+					},
+					"spec": {
+						SchemaProps: spec.SchemaProps{
+							Ref: ref("github.com/vfreex/release-engine-prototype/pkg/apis/art/v1alpha1.SourceSpec"),
+						},
+					},
+					"status": {
+						SchemaProps: spec.SchemaProps{
+							Ref: ref("github.com/vfreex/release-engine-prototype/pkg/apis/art/v1alpha1.SourceStatus"),
+						},
+					},
+				},
+			},
+		},
+		Dependencies: []string{
+			"github.com/vfreex/release-engine-prototype/pkg/apis/art/v1alpha1.SourceSpec", "github.com/vfreex/release-engine-prototype/pkg/apis/art/v1alpha1.SourceStatus", "k8s.io/apimachinery/pkg/apis/meta/v1.ObjectMeta"},
+	}
+}
+
+func schema_pkg_apis_art_v1alpha1_SourceDefinition(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Type: []string{"object"},
+				Properties: map[string]spec.Schema{
+					"git": {
+						SchemaProps: spec.SchemaProps{
+							Ref: ref("github.com/vfreex/release-engine-prototype/pkg/apis/art/v1alpha1.GitSource"),
+						},
+					},
+				},
+				Required: []string{"git"},
+			},
+		},
+		Dependencies: []string{
+			"github.com/vfreex/release-engine-prototype/pkg/apis/art/v1alpha1.GitSource"},
+	}
+}
+
+func schema_pkg_apis_art_v1alpha1_SourceRelationship(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Type: []string{"object"},
+				Properties: map[string]spec.Schema{
+					"type": {
+						SchemaProps: spec.SchemaProps{
+							Type:   []string{"string"},
+							Format: "",
+						},
+					},
+					"distGit": {
+						SchemaProps: spec.SchemaProps{
+							Ref: ref("github.com/vfreex/release-engine-prototype/pkg/apis/art/v1alpha1.DistGitRelationship"),
+						},
+					},
+					"koji": {
+						SchemaProps: spec.SchemaProps{
+							Ref: ref("github.com/vfreex/release-engine-prototype/pkg/apis/art/v1alpha1.KojiRelationship"),
+						},
+					},
+				},
+				Required: []string{"type", "distGit", "koji"},
+			},
+		},
+		Dependencies: []string{
+			"github.com/vfreex/release-engine-prototype/pkg/apis/art/v1alpha1.DistGitRelationship", "github.com/vfreex/release-engine-prototype/pkg/apis/art/v1alpha1.KojiRelationship"},
+	}
+}
+
+func schema_pkg_apis_art_v1alpha1_SourceSpec(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Description: "SourceSpec defines the desired state of Source",
+				Type:        []string{"object"},
+				Properties: map[string]spec.Schema{
+					"source": {
+						SchemaProps: spec.SchemaProps{
+							Description: "INSERT ADDITIONAL SPEC FIELDS - desired state of cluster Important: Run \"operator-sdk generate k8s\" to regenerate code after modifying this file Add custom validation using kubebuilder tags: https://book-v1.book.kubebuilder.io/beyond_basics/generating_crd.html",
+							Ref:         ref("github.com/vfreex/release-engine-prototype/pkg/apis/art/v1alpha1.SourceDefinition"),
+						},
+					},
+					"relationships": {
+						VendorExtensible: spec.VendorExtensible{
+							Extensions: spec.Extensions{
+								"x-kubernetes-list-type": "set",
+							},
+						},
+						SchemaProps: spec.SchemaProps{
+							Type: []string{"array"},
+							Items: &spec.SchemaOrArray{
+								Schema: &spec.Schema{
+									SchemaProps: spec.SchemaProps{
+										Ref: ref("github.com/vfreex/release-engine-prototype/pkg/apis/art/v1alpha1.SourceRelationship"),
+									},
+								},
+							},
+						},
+					},
+				},
+				Required: []string{"source", "relationships"},
+			},
+		},
+		Dependencies: []string{
+			"github.com/vfreex/release-engine-prototype/pkg/apis/art/v1alpha1.SourceDefinition", "github.com/vfreex/release-engine-prototype/pkg/apis/art/v1alpha1.SourceRelationship"},
+	}
+}
+
+func schema_pkg_apis_art_v1alpha1_SourceStatus(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Description: "SourceStatus defines the observed state of Source",
+				Type:        []string{"object"},
+				Properties: map[string]spec.Schema{
+					"conditions": {
+						VendorExtensible: spec.VendorExtensible{
+							Extensions: spec.Extensions{
+								"x-kubernetes-list-type": "set",
+							},
+						},
+						SchemaProps: spec.SchemaProps{
+							Description: "INSERT ADDITIONAL STATUS FIELD - define observed state of cluster Important: Run \"operator-sdk generate k8s\" to regenerate code after modifying this file Add custom validation using kubebuilder tags: https://book-v1.book.kubebuilder.io/beyond_basics/generating_crd.html",
+							Type:        []string{"array"},
+							Items: &spec.SchemaOrArray{
+								Schema: &spec.Schema{
+									SchemaProps: spec.SchemaProps{
+										Type:   []string{"string"},
+										Format: "",
+									},
+								},
+							},
+						},
+					},
+					"phase": {
+						SchemaProps: spec.SchemaProps{
+							Type:   []string{"string"},
+							Format: "",
+						},
+					},
+				},
+				Required: []string{"conditions", "phase"},
 			},
 		},
 	}

@@ -6,6 +6,8 @@ metadata:
     art.openshift.io/product: ocp
     art.openshift.io/product-version: "4.3"
     art.openshift.io/release: "4.3.0"
+    art.openshift.io/component-name: ose-openshift-apiserver-container
+    art.openshift.io/build-system: brew
 spec:
   buildSystem: brew
   component: ose-openshift-apiserver-container

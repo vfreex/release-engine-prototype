@@ -9,10 +9,6 @@ spec:
     listKind: ContainerBuildList
     plural: containerbuilds
     singular: containerbuild
-    shortNames:
-      - cb
-    categories:
-      - all
   scope: Namespaced
   subresources:
     status: {}

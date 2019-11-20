@@ -1,0 +1,26 @@
+apiVersion: art.openshift.io/v1alpha1
+kind: Source
+metadata:
+  name: cluster-version-operator-4.3.0
+  labels:
+    art.openshift.io/product: ocp
+    art.openshift.io/product-version: "4.3"
+    art.openshift.io/release: "4.3.0"
+  annotations:
+    art.openshift.io/distgit-instance: pkgs.devel.redhat.com
+    art.openshift.io/distgit-key: containers/ose-openshift-apiserver
+spec:
+  source:
+    git:
+      uri: github.com/openshift/cluster-version-operator.git
+      ref: da28418b76e0a4c2f2946a914ac2c649dbaf1dc5 # release-4.3 on Dec 11, 2019
+  relationships:
+    - type: distGit
+      distGit:
+        key: containers/cluster-version-operator
+        instance: pkgs.devel.redhat.com
+        branch: release-4.3
+    - type: koji
+      koji:
+        componentName: cluster-version-operator-container
+        instance: brew

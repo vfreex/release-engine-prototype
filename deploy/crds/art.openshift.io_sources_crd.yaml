@@ -1,0 +1,115 @@
+apiVersion: apiextensions.k8s.io/v1beta1
+kind: CustomResourceDefinition
+metadata:
+  name: sources.art.openshift.io
+spec:
+  group: art.openshift.io
+  names:
+    kind: Source
+    listKind: SourceList
+    plural: sources
+    singular: source
+  scope: Namespaced
+  subresources:
+    status: {}
+  validation:
+    openAPIV3Schema:
+      description: Source is the Schema for the sources API
+      properties:
+        apiVersion:
+          description: 'APIVersion defines the versioned schema of this representation
+            of an object. Servers should convert recognized schemas to the latest
+            internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#resources'
+          type: string
+        kind:
+          description: 'Kind is a string value representing the REST resource this
+            object represents. Servers may infer this from the endpoint the client
+            submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#types-kinds'
+          type: string
+        metadata:
+          type: object
+        spec:
+          description: SourceSpec defines the desired state of Source
+          properties:
+            relationships:
+              items:
+                properties:
+                  distGit:
+                    properties:
+                      branch:
+                        type: string
+                      instance:
+                        type: string
+                      key:
+                        type: string
+                    required:
+                    - branch
+                    - instance
+                    - key
+                    type: object
+                  koji:
+                    properties:
+                      componentName:
+                        type: string
+                      instance:
+                        type: string
+                    required:
+                    - componentName
+                    - instance
+                    type: object
+                  type:
+                    type: string
+                required:
+                - type
+                type: object
+              type: array
+            source:
+              description: 'INSERT ADDITIONAL SPEC FIELDS - desired state of cluster
+                Important: Run "operator-sdk generate k8s" to regenerate code after
+                modifying this file Add custom validation using kubebuilder tags:
+                https://book-v1.book.kubebuilder.io/beyond_basics/generating_crd.html'
+              properties:
+                git:
+                  properties:
+                    ref:
+                      description: Ref is the branch/tag/ref to build.
+                      type: string
+                    uri:
+                      description: URI points to the source that will be built. The
+                        structure of the source will depend on the type of build to
+                        run
+                      type: string
+                  required:
+                  - ref
+                  - uri
+                  type: object
+              required:
+              - git
+              type: object
+          required:
+          - relationships
+          - source
+          type: object
+        status:
+          description: SourceStatus defines the observed state of Source
+          properties:
+            conditions:
+              description: 'INSERT ADDITIONAL STATUS FIELD - define observed state
+                of cluster Important: Run "operator-sdk generate k8s" to regenerate
+                code after modifying this file Add custom validation using kubebuilder
+                tags: https://book-v1.book.kubebuilder.io/beyond_basics/generating_crd.html'
+              items:
+                type: string
+              type: array
+            phase:
+              type: string
+          required:
+          - conditions
+          - phase
+          type: object
+      type: object
+  version: v1alpha1
+  versions:
+  - name: v1alpha1
+    served: true
+    storage: true
