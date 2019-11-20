@@ -1,0 +1,7 @@
+apiVersion: art.openshift.io/v1alpha1
+kind: ContainerBuild
+metadata:
+  name: example-containerbuild
+spec:
+  # Add fields here
+  size: 3
