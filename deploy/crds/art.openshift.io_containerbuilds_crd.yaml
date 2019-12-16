@@ -52,7 +52,13 @@ spec:
         status:
           description: ContainerBuildStatus defines the observed state of ContainerBuild
           properties:
+            conditions:
+              additionalProperties:
+                type: string
+              type: object
             digest:
+              type: string
+            phase:
               type: string
             pullSpecs:
               description: 'INSERT ADDITIONAL STATUS FIELD - define observed state
@@ -63,7 +69,9 @@ spec:
                 type: string
               type: array
           required:
+          - conditions
           - digest
+          - phase
           - pullSpecs
           type: object
       type: object

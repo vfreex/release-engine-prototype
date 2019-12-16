@@ -21,6 +21,12 @@ func main() {
 		Nvr         string `xmlrpc:"nvr"`
 		Version     string `xmlrpc:"version"`
 		Release     string `xmlrpc:"release"`
+		Epoch       string `xmlrpc:"epoch"`
+		Extra       struct {
+			Source struct {
+				OriginalUrl string `xmlrpc:"original_url"`
+			} `xmlrpc:"source"`
+		} `xmlrpc:"extra"`
 	}
 
 	rpc.Call("getBuild", nvr, &buildinfo)

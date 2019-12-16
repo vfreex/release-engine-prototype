@@ -35,11 +35,11 @@ type GitSource struct {
 
 // +k8s:openapi-gen=true
 type SourceRelationship struct {
-	Type    string              `json:"type"`
+	Type string `json:"type"`
 	// +kubebuilder:validation:Optional
 	DistGit DistGitRelationship `json:"distGit"`
 	// +kubebuilder:validation:Optional
-	Koji    KojiRelationship    `json:"koji"`
+	Koji KojiRelationship `json:"koji"`
 }
 
 // +k8s:openapi-gen=true
@@ -62,8 +62,8 @@ type SourceStatus struct {
 	// Important: Run "operator-sdk generate k8s" to regenerate code after modifying this file
 	// Add custom validation using kubebuilder tags: https://book-v1.book.kubebuilder.io/beyond_basics/generating_crd.html
 	// +listType=set
-	Conditions []string `json:"conditions"`
-	Phase      string   `json:"phase"`
+	Conditions map[string]string `json:"conditions"`
+	Phase      string            `json:"phase"`
 }
 
 // +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object

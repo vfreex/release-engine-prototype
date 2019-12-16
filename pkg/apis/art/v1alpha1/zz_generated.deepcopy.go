@@ -93,6 +93,13 @@ func (in *ContainerBuildStatus) DeepCopyInto(out *ContainerBuildStatus) {
 		*out = make([]string, len(*in))
 		copy(*out, *in)
 	}
+	if in.Conditions != nil {
+		in, out := &in.Conditions, &out.Conditions
+		*out = make(map[string]string, len(*in))
+		for key, val := range *in {
+			(*out)[key] = val
+		}
+	}
 	return
 }
 
@@ -277,8 +284,10 @@ func (in *SourceStatus) DeepCopyInto(out *SourceStatus) {
 	*out = *in
 	if in.Conditions != nil {
 		in, out := &in.Conditions, &out.Conditions
-		*out = make([]string, len(*in))
-		copy(*out, *in)
+		*out = make(map[string]string, len(*in))
+		for key, val := range *in {
+			(*out)[key] = val
+		}
 	}
 	return
 }

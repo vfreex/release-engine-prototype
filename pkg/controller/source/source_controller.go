@@ -2,7 +2,6 @@ package source
 
 import (
 	"context"
-	"fmt"
 	artv1alpha1 "github.com/vfreex/release-engine-prototype/pkg/apis/art/v1alpha1"
 	"gopkg.in/src-d/go-git.v4"
 	"gopkg.in/src-d/go-git.v4/config"
@@ -116,10 +115,8 @@ func (r *ReconcileSource) Reconcile(request reconcile.Request) (reconcile.Result
 	now := time.Now().UTC()
 	if sha1Pattern.MatchString(gitRef) {
 		instance.Status.Phase = "Prepared"
-		instance.Status.Conditions = append(instance.Status.Conditions, fmt.Sprintf("gitCommitHash: %v",
-			gitRef))
-		instance.Status.Conditions = append(instance.Status.Conditions, fmt.Sprintf("revisionLockedAt: %v",
-			now))
+		instance.Status.Conditions["gitCommitHash"] = gitRef
+		instance.Status.Conditions["revisionLockedAt"] = now.String()
 	} else {
 		remote := git.NewRemote(memory.NewStorage(), &config.RemoteConfig{
 			Name: "origin",
@@ -134,10 +131,8 @@ func (r *ReconcileSource) Reconcile(request reconcile.Request) (reconcile.Result
 			reqLogger.Info("ref", "name", ref.Name(), "value", ref.String())
 			if ref.Name().Short() == instance.Spec.Source.Git.Ref {
 				instance.Status.Phase = "Prepared"
-				instance.Status.Conditions = append(instance.Status.Conditions, fmt.Sprintf("commit-hash: %v",
-					ref.Hash()))
-				instance.Status.Conditions = append(instance.Status.Conditions, fmt.Sprintf("revisionLockedAt: %v",
-					now))
+				instance.Status.Conditions["gitCommitHash"] = gitRef
+				instance.Status.Conditions["revisionLockedAt"] = now.String()
 				found = true
 				break
 			}

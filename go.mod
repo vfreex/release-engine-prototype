@@ -4,7 +4,7 @@ go 1.13
 
 require (
 	github.com/go-openapi/spec v0.19.0
-	github.com/kolo/xmlrpc v0.0.0-20190909154602-56d5ec7c422e // indirect
+	github.com/kolo/xmlrpc v0.0.0-20190909154602-56d5ec7c422e
 	github.com/openshift/library-go v0.0.0-20191118102510-4e2c7112d252 // indirect
 	github.com/openshift/openshift-apiserver v0.0.0-alpha.0
 	github.com/operator-framework/operator-sdk v0.12.0

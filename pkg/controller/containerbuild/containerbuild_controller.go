@@ -2,16 +2,17 @@ package containerbuild
 
 import (
 	"context"
+	"fmt"
+	"github.com/kolo/xmlrpc"
+	"time"
 
 	artv1alpha1 "github.com/vfreex/release-engine-prototype/pkg/apis/art/v1alpha1"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
-	"k8s.io/apimachinery/pkg/types"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/controller"
-	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
 	"sigs.k8s.io/controller-runtime/pkg/handler"
 	logf "sigs.k8s.io/controller-runtime/pkg/log"
 	"sigs.k8s.io/controller-runtime/pkg/manager"
@@ -83,12 +84,13 @@ type ReconcileContainerBuild struct {
 // The Controller will requeue the Request to be processed again if the returned error is non-nil or
 // Result.Requeue is true, otherwise upon completion it will remove the work from the queue.
 func (r *ReconcileContainerBuild) Reconcile(request reconcile.Request) (reconcile.Result, error) {
+	ctx := context.Background()
 	reqLogger := log.WithValues("Request.Namespace", request.Namespace, "Request.Name", request.Name)
 	reqLogger.Info("Reconciling ContainerBuild")
 
 	// Fetch the ContainerBuild instance
 	instance := &artv1alpha1.ContainerBuild{}
-	err := r.client.Get(context.TODO(), request.NamespacedName, instance)
+	err := r.client.Get(ctx, request.NamespacedName, instance)
 	if err != nil {
 		if errors.IsNotFound(err) {
 			// Request object not found, could have been deleted after reconcile request.
@@ -100,32 +102,66 @@ func (r *ReconcileContainerBuild) Reconcile(request reconcile.Request) (reconcil
 		return reconcile.Result{}, err
 	}
 
-	// Define a new Pod object
-	pod := newPodForCR(instance)
-
-	// Set ContainerBuild instance as the owner and controller
-	if err := controllerutil.SetControllerReference(instance, pod, r.scheme); err != nil {
-		return reconcile.Result{}, err
-	}
-
-	// Check if this Pod already exists
-	found := &corev1.Pod{}
-	err = r.client.Get(context.TODO(), types.NamespacedName{Name: pod.Name, Namespace: pod.Namespace}, found)
-	if err != nil && errors.IsNotFound(err) {
-		reqLogger.Info("Creating a new Pod", "Pod.Namespace", pod.Namespace, "Pod.Name", pod.Name)
-		err = r.client.Create(context.TODO(), pod)
-		if err != nil {
+	if instance.Spec.BuildSystem == "brew" {
+		rpc, _ := xmlrpc.NewClient("https://brewhub.engineering.redhat.com/brewhub", nil)
+		nvr := instance.Spec.Component + "-" + instance.Spec.Version + "-" + instance.Spec.Release
+		var buildinfo struct {
+			BuildId     int    `xmlrpc:"build_id"`
+			OwnerName   string `xmlrpc:"owner_name"`
+			PackageName string `xmlrpc:"package_name"`
+			State       int    `xmlrpc:"state"`
+			Nvr         string `xmlrpc:"nvr"`
+			Version     string `xmlrpc:"version"`
+			Release     string `xmlrpc:"release"`
+			Epoch       string `xmlrpc:"epoch"`
+			Extra       struct {
+				Source struct {
+					OriginalUrl string `xmlrpc:"original_url"`
+				} `xmlrpc:"source"`
+			} `xmlrpc:"extra"`
+		}
+		if err = rpc.Call("getBuild", nvr, &buildinfo); err != nil {
 			return reconcile.Result{}, err
 		}
+		if buildinfo.State != 1 {
+			instance.Status.Phase = "Error"
+			return reconcile.Result{}, fmt.Errorf("Brew build state is %v", buildinfo.State)
+		}
+		instance.Status.Phase = "Prepared"
+		instance.Status.Conditions["sourceUrl"] = buildinfo.Extra.Source.OriginalUrl
+		instance.Status.Conditions["lastUpdatedAt"] = time.Now().String()
+	}
 
-		// Pod created successfully - don't requeue
-		return reconcile.Result{}, nil
-	} else if err != nil {
+	if err := r.client.Status().Update(ctx, instance); err != nil {
 		return reconcile.Result{}, err
 	}
 
-	// Pod already exists - don't requeue
-	reqLogger.Info("Skip reconcile: Pod already exists", "Pod.Namespace", found.Namespace, "Pod.Name", found.Name)
+	// Define a new Pod object
+	//pod := newPodForCR(instance)
+	//
+	//// Set ContainerBuild instance as the owner and controller
+	//if err := controllerutil.SetControllerReference(instance, pod, r.scheme); err != nil {
+	//	return reconcile.Result{}, err
+	//}
+	//
+	//// Check if this Pod already exists
+	//found := &corev1.Pod{}
+	//err = r.client.Get(context.TODO(), types.NamespacedName{Name: pod.Name, Namespace: pod.Namespace}, found)
+	//if err != nil && errors.IsNotFound(err) {
+	//	reqLogger.Info("Creating a new Pod", "Pod.Namespace", pod.Namespace, "Pod.Name", pod.Name)
+	//	err = r.client.Create(context.TODO(), pod)
+	//	if err != nil {
+	//		return reconcile.Result{}, err
+	//	}
+	//
+	//	// Pod created successfully - don't requeue
+	//	return reconcile.Result{}, nil
+	//} else if err != nil {
+	//	return reconcile.Result{}, err
+	//}
+	//
+	//// Pod already exists - don't requeue
+	//reqLogger.Info("Skip reconcile: Pod already exists", "Pod.Namespace", found.Namespace, "Pod.Name", found.Name)
 	return reconcile.Result{}, nil
 }
 
