@@ -108,6 +108,7 @@ func (r *ReconcileSource) Reconcile(request reconcile.Request) (reconcile.Result
 	}
 
 	instance.Status = artv1alpha1.SourceStatus{}
+	instance.Status.Conditions = make(map[string]string)
 	gitUri := instance.Spec.Source.Git.URI
 	gitRef := instance.Spec.Source.Git.Ref
 
@@ -131,8 +132,8 @@ func (r *ReconcileSource) Reconcile(request reconcile.Request) (reconcile.Result
 			reqLogger.Info("ref", "name", ref.Name(), "value", ref.String())
 			if ref.Name().Short() == instance.Spec.Source.Git.Ref {
 				instance.Status.Phase = "Prepared"
-				instance.Status.Conditions["gitCommitHash"] = gitRef
-				instance.Status.Conditions["revisionLockedAt"] = now.String()
+				instance.Status.Conditions["gitCommitHash"] = ref.Hash().String()
+				//instance.Status.Conditions["revisionLockedAt"] = now.String()
 				found = true
 				break
 			}

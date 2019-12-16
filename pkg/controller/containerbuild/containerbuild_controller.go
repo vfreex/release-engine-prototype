@@ -4,8 +4,6 @@ import (
 	"context"
 	"fmt"
 	"github.com/kolo/xmlrpc"
-	"time"
-
 	artv1alpha1 "github.com/vfreex/release-engine-prototype/pkg/apis/art/v1alpha1"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/errors"
@@ -18,6 +16,8 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/manager"
 	"sigs.k8s.io/controller-runtime/pkg/reconcile"
 	"sigs.k8s.io/controller-runtime/pkg/source"
+	"strconv"
+	"time"
 )
 
 var log = logf.Log.WithName("controller_containerbuild")
@@ -102,22 +102,40 @@ func (r *ReconcileContainerBuild) Reconcile(request reconcile.Request) (reconcil
 		return reconcile.Result{}, err
 	}
 
+	instance.Status = artv1alpha1.ContainerBuildStatus{}
+	instance.Status.Conditions = make(map[string]string)
+	instance.Status.PullSpecs = []string{}
+
 	if instance.Spec.BuildSystem == "brew" {
 		rpc, _ := xmlrpc.NewClient("https://brewhub.engineering.redhat.com/brewhub", nil)
 		nvr := instance.Spec.Component + "-" + instance.Spec.Version + "-" + instance.Spec.Release
 		var buildinfo struct {
-			BuildId     int    `xmlrpc:"build_id"`
-			OwnerName   string `xmlrpc:"owner_name"`
-			PackageName string `xmlrpc:"package_name"`
-			State       int    `xmlrpc:"state"`
-			Nvr         string `xmlrpc:"nvr"`
-			Version     string `xmlrpc:"version"`
-			Release     string `xmlrpc:"release"`
-			Epoch       string `xmlrpc:"epoch"`
-			Extra       struct {
+			BuildId      int     `xmlrpc:"build_id"`
+			OwnerName    string  `xmlrpc:"owner_name"`
+			PackageName  string  `xmlrpc:"package_name"`
+			State        int     `xmlrpc:"state"`
+			Nvr          string  `xmlrpc:"nvr"`
+			Version      string  `xmlrpc:"version"`
+			Release      string  `xmlrpc:"release"`
+			Epoch        string  `xmlrpc:"epoch"`
+			CreationTs   float64 `xmlrpc:"creation_ts"`
+			StartTs      float64 `xmlrpc:"start_ts"`
+			CompletionTs float64 `xmlrpc:"completion_ts"`
+			Source       string  `xmlrpc:"source"`
+
+			Extra struct {
 				Source struct {
 					OriginalUrl string `xmlrpc:"original_url"`
 				} `xmlrpc:"source"`
+				Image struct {
+					Index struct {
+						UniqueTags []string `xmlrpc:"unique_tags"`
+						Pull       []string `xmlrpc:"pull"`
+						Digests    struct {
+							ManifestList string `xmlrpc:"application/vnd.docker.distribution.manifest.list.v2+json"`
+						} `xmlrpc:"digests"`
+					} `xmlrpc:"index"`
+				} `xmlrpc:"image"`
 			} `xmlrpc:"extra"`
 		}
 		if err = rpc.Call("getBuild", nvr, &buildinfo); err != nil {
@@ -128,8 +146,16 @@ func (r *ReconcileContainerBuild) Reconcile(request reconcile.Request) (reconcil
 			return reconcile.Result{}, fmt.Errorf("Brew build state is %v", buildinfo.State)
 		}
 		instance.Status.Phase = "Prepared"
-		instance.Status.Conditions["sourceUrl"] = buildinfo.Extra.Source.OriginalUrl
-		instance.Status.Conditions["lastUpdatedAt"] = time.Now().String()
+		instance.Status.Conditions["buildId"] = strconv.Itoa(buildinfo.BuildId)
+		instance.Status.Conditions["sourceUrl"] = buildinfo.Source
+		instance.Status.Conditions["creationTime"] = time.Unix(int64(buildinfo.CreationTs), 0).String()
+		instance.Status.Conditions["startTime"] = time.Unix(int64(buildinfo.StartTs), 0).String()
+		instance.Status.Conditions["completionTime"] = time.Unix(int64(buildinfo.CompletionTs), 0).String()
+		instance.Status.PullSpecs = buildinfo.Extra.Image.Index.Pull
+		if buildinfo.Extra.Image.Index.Digests.ManifestList != "" {
+			instance.Status.Conditions["contentType"] = "application/vnd.docker.distribution.manifest.list.v2+json"
+			instance.Status.Digest = buildinfo.Extra.Image.Index.Digests.ManifestList
+		}
 	}
 
 	if err := r.client.Status().Update(ctx, instance); err != nil {
